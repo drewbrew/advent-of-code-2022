@@ -1,3 +1,4 @@
+"""Day 1: how many snacks are these elves packing?"""
 from pathlib import Path
 
 
@@ -18,28 +19,28 @@ TEST_INPUT = """1000
 
 
 def parse_input(lines: list[str]) -> list[int]:
-    reindeer = []
+    elves = []
     interim = 0
     for line in lines:
         line = line.strip()
         if not line:
-            reindeer.append(interim)
+            elves.append(interim)
             interim = 0
         else:
             interim += int(line)
-    reindeer.append(interim)
-    return reindeer
+    elves.append(interim)
+    return elves
 
 
 def part_one(puzzle_input: list[str]) -> int:
-    reindeer = parse_input(puzzle_input)
-    return max(reindeer)
+    elves = parse_input(puzzle_input)
+    return max(elves)
 
 
 def part_two(puzzle_input: list[str]) -> int:
-    reindeer = parse_input(puzzle_input)
-    reindeer = sorted(reindeer, reverse=True)
-    return sum(reindeer[:3])
+    elves = parse_input(puzzle_input)
+    elves = sorted(elves, reverse=True)
+    return sum(elves[:3])
 
 
 def main():
