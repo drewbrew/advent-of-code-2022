@@ -9,6 +9,7 @@ networkx = "*"
 [dev-packages]
 ipython = "*"
 black = "*"
+pyupgrade = "*"
 
 [requires]
 python_version = "3.11"
