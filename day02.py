@@ -1,14 +1,20 @@
 """Day 2: paper, rock, scissors"""
 from pathlib import Path
 
+ME_ROCK = "X"
+ME_PAPER = "Y"
+ME_SCISSORS = "Z"
+OPPONENT_ROCK = "A"
+OPPONENT_PAPER = "B"
+OPPONENT_SCISSORS = "C"
 
 SCORES = {
-    "A": 1,  # ROCK
-    "X": 1,
-    "B": 2,  # PAPER
-    "Y": 2,
-    "C": 3,  # SCISSORS
-    "Z": 3,
+    OPPONENT_ROCK: 1,  # ROCK
+    ME_ROCK: 1,
+    OPPONENT_PAPER: 2,  # PAPER
+    ME_PAPER: 2,
+    OPPONENT_SCISSORS: 3,  # SCISSORS
+    ME_SCISSORS: 3,
 }
 
 LOSS = 0
@@ -27,39 +33,43 @@ def parse_input(puzzle: list[str]) -> list[tuple[str, str]]:
 def play_round(part_one: tuple[str, str]) -> int:
     opponent, me = part_one
 
-    if (opponent, me) in [("A", "X"), ("B", "Y"), ("C", "Z")]:
+    if (opponent, me) in [
+        (OPPONENT_ROCK, ME_ROCK),
+        (OPPONENT_PAPER, ME_PAPER),
+        (OPPONENT_SCISSORS, ME_SCISSORS),
+    ]:
         # draw
         return SCORES[me] + DRAW
-    if (
-        (opponent == "A" and me == "Y")  # paper beats rock
-        or (opponent == "B" and me == "Z")  # scissors beats paper
-        or (opponent == "C" and me == "X")  # rock beats scissors
-    ):
+    if (opponent, me) in [
+        (OPPONENT_ROCK, ME_PAPER),
+        (OPPONENT_PAPER, ME_SCISSORS),
+        (OPPONENT_SCISSORS, ME_ROCK),
+    ]:
         return SCORES[me] + WIN
     return SCORES[me] + LOSS
 
 
 def play_round_part_2(turn: tuple[str, str]) -> int:
     opponent, result = turn
-    if result == "X":  # lose
+    if result == ME_ROCK:  # lose
         losses = {
-            "A": "Z",
-            "B": "X",
-            "C": "Y",
+            OPPONENT_ROCK: ME_SCISSORS,
+            OPPONENT_PAPER: ME_ROCK,
+            OPPONENT_SCISSORS: ME_PAPER,
         }
         me = losses[opponent]
-    elif result == "Y":  # draw
+    elif result == ME_PAPER:  # draw
         draws = {
-            "A": "X",
-            "B": "Y",
-            "C": "Z",
+            OPPONENT_ROCK: ME_ROCK,
+            OPPONENT_PAPER: ME_PAPER,
+            OPPONENT_SCISSORS: ME_SCISSORS,
         }
         me = draws[opponent]
     else:
         wins = {
-            "A": "Y",
-            "B": "Z",
-            "C": "X",
+            OPPONENT_ROCK: ME_PAPER,
+            OPPONENT_PAPER: ME_SCISSORS,
+            OPPONENT_SCISSORS: ME_ROCK,
         }
         me = wins[opponent]
     return play_round((opponent, me))
@@ -67,14 +77,12 @@ def play_round_part_2(turn: tuple[str, str]) -> int:
 
 def play_game(puzzle: list[str]) -> int:
     game = parse_input(puzzle)
-    rounds = [play_round(turn) for turn in game]
-    return sum(rounds)
+    return sum(play_round(turn) for turn in game)
 
 
 def play_part_two(puzzle: list[str]) -> int:
     game = parse_input(puzzle)
-    rounds = [play_round_part_2(turn) for turn in game]
-    return sum(rounds)
+    return sum(play_round_part_2(turn) for turn in game)
 
 
 def main():
