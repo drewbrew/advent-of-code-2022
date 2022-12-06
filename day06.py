@@ -10,23 +10,20 @@ TEST_INPUTS = {
     "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw": (11, 26),
 }
 
+def min_offset_before_distinct_chars(puzzle: str, min_distinct: int) -> int:
+    for index in range(min_distinct, len(puzzle) + 1):
+        most_recent = puzzle[index - min_distinct:index]
+        assert len(most_recent) == min_distinct
+        if len(set(most_recent)) == min_distinct:
+            return index
 
 def part_one(puzzle: str) -> int:
     """How many characters in do we have to get before getting 4 distinct chars?"""
-    for index in range(4, len(puzzle) + 1):
-        last_4 = puzzle[index - 4:index]
-        assert len(last_4) == 4
-        if len(set(last_4)) == 4:
-            return index
-
+    return min_offset_before_distinct_chars(puzzle, 4)
 
 def part_two(puzzle: str) -> int:
     """How many characters in do we have to get before getting 14 distinct chars?"""
-    for index in range(14, len(puzzle) + 1):
-        last_14 = puzzle[index - 14:index]
-        assert len(last_14) == 14
-        if len(set(last_14)) == 14:
-            return index
+    return min_offset_before_distinct_chars(puzzle, 14)
 
 
 def main():
