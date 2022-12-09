@@ -88,35 +88,17 @@ def part_one(puzzle: list[str]) -> int:
 
 def part_two(puzzle: list[str]) -> int:
     steps = parse_input(puzzle=puzzle)
-    head = 0j
-    tail1 = 0j
-    tail2 = 0j
-    tail3 = 0j
-    tail4 = 0j
-    tail5 = 0j
-    tail6 = 0j
-    tail7 = 0j
-    tail8 = 0j
-    tail9 = 0j
-    points_seen: set[complex] = {tail9}
+    knots = [0j for _ in range(10)]  # head + 9 tails
+    points_seen: set[complex] = {knots[-1]}
     for direction, number_of_steps in steps:
         while number_of_steps > 0:
-            head += direction
-            tail1 += follow_head(head, tail1)
-            tail2 += follow_head(tail1, tail2)
-            tail3 += follow_head(tail2, tail3)
-            tail4 += follow_head(tail3, tail4)
-            tail5 += follow_head(tail4, tail5)
-            tail6 += follow_head(tail5, tail6)
-            tail7 += follow_head(tail6, tail7)
-            tail8 += follow_head(tail7, tail8)
-            tail9 += follow_head(tail8, tail9)
+            for index, knot in enumerate(knots):
+                if not index:
+                    knots[index] += direction
+                else:
+                    knots[index] += follow_head(knots[index - 1], knot)
             number_of_steps -= 1
-
-            points_seen.add(tail9)
-
-            # print(head, tail1, tail2, tail3, tail4, tail5, tail6, tail7, tail8, tail9)
-
+            points_seen.add(knots[-1])
     return len(points_seen)
 
 
