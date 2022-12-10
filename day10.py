@@ -179,7 +179,7 @@ class CPU:
             if abs(horizontal_position - self.register) <= 1:
                 print("#", end="")
             else:
-                print(".", end="")
+                print(" ", end="")
 
         self.cycles_completed += 1
         if not self.part_two and self.cycles_completed in self.reporting_thresholds:
