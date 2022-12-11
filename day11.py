@@ -1,7 +1,6 @@
 """Day 11: monkey in the middle"""
 
 from pathlib import Path
-from typing import Optional
 from collections import deque
 
 
