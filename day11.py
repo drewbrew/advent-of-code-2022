@@ -47,7 +47,17 @@ class Monkey:
     ) -> None:
         self.starting_items = starting_items
         self.monkey_number = monkey_number
-        self.operation = operation
+        operands = operation.split()
+        assert operands[:3] == ["new", "=", "old"], operands
+        self.other_operand = operands[-1]
+
+        if operands[-2] == "*":
+            # print(f'    Worry level is multiplied by {value} to {item * value}')
+            self.operation = self.multiply_by
+        else:
+            assert operands[-2] == "+"
+            # print(f'    Worry level increases by {value} to {item + value}')
+            self.operation = self.increase_by
         self.modulus = modulus
         self.true_destination: Monkey | None = None
         self.false_destination: Monkey | None = None
@@ -59,25 +69,23 @@ class Monkey:
         self.part_one = part_one
         self.destress: int | None = None
 
+    def increase_by(self, item: int) -> int:
+        if self.other_operand == "old":
+            return item + item
+        return item + int(self.other_operand)
+
+    def multiply_by(self, item: int) -> int:
+        if self.other_operand == "old":
+            return item * item
+        return item * int(self.other_operand)
+
     def inspect(self) -> int:
-        operands = self.operation.split()
-        assert operands[:3] == ["new", "=", "old"], operands
         item = self.starting_items.popleft()
         # print(f'  Monkey inspects an item with a worry level of {item}' )
         self.items_inspected += 1
 
-        if operands[-1] == "old":
-            value = item
-        else:
-            value = int(operands[-1])
+        item = self.operation(item)
 
-        if operands[-2] == "*":
-            # print(f'    Worry level is multiplied by {value} to {item * value}')
-            item = item * value
-        else:
-            assert operands[-2] == "+"
-            # print(f'    Worry level increases by {value} to {item + value}')
-            item = item + value
         item = item // self.worry_divisor
         # print(f'   Monkey gets bored with item. Worry level is divided by 3 to {item}')
         return item
