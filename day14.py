@@ -70,6 +70,9 @@ def part_two(puzzle: list[str]) -> int:
     x_values = sorted(x for x, _ in grid)
     # if we spread out an extra 300 in each dimension from our widest point
     # that should more than cover it
+
+    # I had tried 3 for the test input but that wasn't enough, then I tried
+    # 30 and that was enough for the test input but not the real input
     min_x = x_values[0] - 300
     max_x = x_values[-1] + 301
     grid |= {(dx, the_bottom) for dx in range(min_x, max_x)}
