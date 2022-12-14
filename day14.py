@@ -1,6 +1,8 @@
 """Day 14: Regolith Reservoir"""
 
+import sys
 from pathlib import Path
+from time import sleep
 
 TEST_INPUT = """498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9""".splitlines()
@@ -62,7 +64,7 @@ def drop_sand(
     raise IntoTheAbyss()
 
 
-def part_two(puzzle: list[str]) -> int:
+def part_two(puzzle: list[str], visualize: bool = False) -> int:
     """Same as part one, only now there's an infinite floor two levels below our last scan"""
     grains = 0
     grid = parse_input(puzzle=puzzle)
@@ -73,18 +75,41 @@ def part_two(puzzle: list[str]) -> int:
 
     # I had tried 3 for the test input but that wasn't enough, then I tried
     # 30 and that was enough for the test input but not the real input
-    min_x = x_values[0] - 300
-    max_x = x_values[-1] + 301
+    # after running it, the grid only went out to about 330 on the left and 675
+    # on the right
+    min_x = x_values[0] - 175
+    max_x = x_values[-1] + 175
     grid |= {(dx, the_bottom) for dx in range(min_x, max_x)}
-
+    if visualize:
+        visualized = {coordinate: "#" for coordinate in grid}
     while True:
         new_point = drop_sand(grid)
         grains += 1
         if new_point == START:
             # print('blocked!')
+            if visualize:
+                display_grid(visualized, START[0] - 175, START[0] + 175)
             return grains
         # print(f'drop number {grains} landed at {new_point}')
         grid.add(new_point)
+        if visualize:
+            visualized[new_point] = "o"
+            if not grains % 100:
+                display_grid(visualized, START[0] - 175, START[0] + 175)
+
+
+def display_grid(grid: dict[COORDINATE_TYPE, str], min_x: int, max_x: int):
+    min_y = 0
+    max_y = max(i[1] for i in grid)
+    # move to top left and clear screen
+    print(chr(27) + "[2j")
+    print("\033c")
+    print("\x1bc")
+    for y in range(min_y, max_y + 2):
+
+        for x in range(min_x, max_x + 1):
+            print(grid.get((x, y), " "), end="")
+        print("")
 
 
 def part_one(puzzle: list[str]) -> int:
@@ -111,7 +136,7 @@ def main():
     print(part_one(puzzle))
     part_two_result = part_two(TEST_INPUT)
     assert part_two_result == 93, part_two_result
-    print(part_two(puzzle=puzzle))
+    print(part_two(puzzle=puzzle, visualize="--display" in sys.argv))
 
 
 if __name__ == "__main__":
