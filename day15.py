@@ -72,31 +72,37 @@ def tuning_freq(point: COORDINATE_TYPE):
 
 
 def first_points_not_detected(
-    sensor: COORDINATE_TYPE, distance: int
+    sensor: COORDINATE_TYPE,
+    distance: int,
+    max_coordinate: int,
 ) -> Generator[COORDINATE_TYPE, None, None]:
     x, y = sensor
     dx = x + distance + 1
     dy = y
     while dx > x:
         # move up and to the left
-        yield dx, dy
+        if dx >= 0 and dy >= 0 and dx <= max_coordinate and dy <= max_coordinate:
+            yield dx, dy
         dx -= 1
         dy += 1
     assert dy == y + distance + 1
     while dy > y:
         # move down and to the left
-        yield dx, dy
+        if dx >= 0 and dy >= 0 and dx <= max_coordinate and dy <= max_coordinate:
+            yield dx, dy
         dx -= 1
         dy -= 1
     assert dx == x - distance - 1
     while dx < x:
-        yield dx, dy
+        if dx >= 0 and dy >= 0 and dx <= max_coordinate and dy <= max_coordinate:
+            yield dx, dy
         # move down and to the right
         dx += 1
         dy -= 1
     assert dy == y - distance - 1
     while dy < y:
-        yield dx, dy
+        if dx >= 0 and dy >= 0 and dx <= max_coordinate and dy <= max_coordinate:
+            yield dx, dy
         dx += 1
         dy += 1
     # and make sure we're back where we started
@@ -106,11 +112,13 @@ def first_points_not_detected(
 def part_two(puzzle: list[str], max_x: int, max_y: int) -> int:
     grid, beacons = parse_input(puzzle=puzzle)
     assert max_x == max_y
-    boundary = range(max_x + 1)
     for sensor, distance in grid.items():
-        for neighbor in first_points_not_detected(sensor, distance=distance):
-            x, y = neighbor
-            if x not in boundary or y not in boundary or neighbor in beacons:
+        for neighbor in first_points_not_detected(
+            sensor,
+            istance=distance,
+            max_coordinate=max_x,
+        ):
+            if neighbor in beacons:
                 continue
             for other_sensor, other_dist in grid.items():
                 if other_sensor == sensor:
