@@ -48,8 +48,9 @@ def manhattan(point1: tuple[COORDINATE_TYPE], point2: tuple[COORDINATE_TYPE]) ->
 def part_one(puzzle: list[str], target_y: int) -> int:
     grid, beacons = parse_input(puzzle=puzzle)
     x_values = sorted(x for x, _ in grid)
+    biggest_range = max(grid.values())
     score = 0
-    for x in range(x_values[0] - target_y, x_values[-1] + target_y + 1):
+    for x in range(x_values[0] - biggest_range, x_values[-1] + biggest_range + 1):
         point = (x, target_y)
         if point in beacons:
             continue
