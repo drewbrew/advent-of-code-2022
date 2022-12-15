@@ -115,7 +115,7 @@ def part_two(puzzle: list[str], max_x: int, max_y: int) -> int:
     for sensor, distance in grid.items():
         for neighbor in first_points_not_detected(
             sensor,
-            istance=distance,
+            distance=distance,
             max_coordinate=max_x,
         ):
             if neighbor in beacons:
