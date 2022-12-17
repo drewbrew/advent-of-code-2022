@@ -32,7 +32,7 @@ START_Y = 4
 
 CoordinateType = tuple[int, int]
 InstructionType = Iterable[Literal[1] | Literal[-1]]
-
+RoofType = dict[tuple[int, int, int, int, int, int, int], tuple[int, int, int]]
 
 def parse_input(puzzle: str) -> InstructionType:
     return cycle(1 if char == ">" else -1 for char in puzzle)
@@ -101,7 +101,7 @@ def place_new_piece(
             raise ValueError("huh?")
 
 
-def display_grid(chamber: dict[CoordinateType]):
+def display_grid(chamber: dict[CoordinateType, str]):
     y_values = sorted(i[1] for i in chamber)
     max_y = y_values[-1]
     min_y = y_values[0]
@@ -112,12 +112,25 @@ def display_grid(chamber: dict[CoordinateType]):
         print("|")
 
 
+def get_roof(chamber: dict[CoordinateType, str]) -> tuple[int, int, int, int, int, int, int]:
+    heights = tuple(max(y for x1, y in chamber if x1 == x) for x in [0, 1, 2, 3, 4, 5, 6])
+    max_y = max(heights)
+    return tuple(y - max_y for y in heights)
+
+
 def part_one(puzzle: str, turns=2022) -> int:
     instructions = parse_input(puzzle=puzzle)
     chamber = {(x, 0): "-" for x in range(WIDTH)}
     last_chamber = {**chamber}
+    floor = 0
     pieces = cycle(ROCK_SHAPES)
-    for turn in range(turns):
+    roofs: dict[str, RoofType] = {shape: {} for shape in ROCK_SHAPES}
+    repeat_interval = len(ROCK_SHAPES) * len(puzzle)
+    height = 0
+    repeat_found = False
+    turn = 0
+    print('repeat interval', repeat_interval)
+    while turn < turns:
         try:
             next_piece = next(pieces)
             place_new_piece(chamber, next_piece, instructions=instructions)
@@ -131,7 +144,29 @@ def part_one(puzzle: str, turns=2022) -> int:
         if turn <= 5 and turns == 2022:
             display_grid(chamber)
             print(next_piece, "===NEW PIECE===", turn)
-    return max(y for _, y in chamber)
+        roof = get_roof(chamber=chamber)
+
+        if not repeat_found:
+            if (old_info := roofs.get(next_piece, {}).get(roof)):
+                old_turn, old_height, old_index = old_info
+                new_index = turn % len(puzzle)
+                if new_index == old_index:
+                    interval = turn - old_turn
+                    delta_y = max(y for _, y in chamber) - old_height
+                    print('repeats every', turn - old_turn, delta_y, old_height)
+                    while turn + interval < turns:
+                        height += delta_y
+                        turn += interval
+                    print('done ', height, turn)
+                    repeat_found = True
+            else:
+                roofs[next_piece][roof] = (turn, max(y for _, y in chamber), turn % len(puzzle))
+        turn += 1
+        if turns > 10000 and turn and not turn % 1000:
+            print(turn, end='\r')
+    
+    print(turn, height)        
+    return max(y for _, y in chamber) + height
 
 
 def main():
