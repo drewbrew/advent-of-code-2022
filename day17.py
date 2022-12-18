@@ -30,9 +30,14 @@ TEST_INPUT = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 START_X = 2
 START_Y = 4
 
+# how many rows to preserve in cycle detection
+# in my testing, I had a piece fall 40 during part 1
+CEILING_HEIGHT = 45  
+
+
 CoordinateType = tuple[int, int]
 InstructionType = Iterable[Literal[1] | Literal[-1]]
-RoofType = dict[tuple[int, int, int, int, int, int, int], tuple[int, int, int]]
+RoofType = dict[str, tuple[int, int, int]]
 
 
 def parse_input(puzzle: str) -> InstructionType:
@@ -46,7 +51,7 @@ def place_new_piece(
     height = len(lines)
     bottom_row = [index for index, char in enumerate(lines[-1]) if char == "#"]
     x = START_X
-    y = START_Y + max(i[1] for i in chamber)
+    initial_y = y = START_Y + max(i[1] for i in chamber)
     while True:
 
         next_instr = next(instructions)
@@ -83,6 +88,8 @@ def place_new_piece(
                                 (x + x_index, dy),
                             )
                             chamber[x + x_index, dy] = char
+                if initial_y - y > CEILING_HEIGHT:
+                    raise ValueError(f'Too big of a fall: {initial_y - y}')
                 return
             # is it a + shape?
             if current_piece == ROCK_SHAPES[1]:
@@ -95,6 +102,8 @@ def place_new_piece(
                             if char == "#":
                                 assert (x + x_index, dy) not in chamber
                                 chamber[x + x_index, dy] = char
+                    if initial_y - y > CEILING_HEIGHT:
+                        raise ValueError(f'Too big of a fall: {initial_y - y}')
                     return
         # yes it can fall
         y -= 1
@@ -113,6 +122,7 @@ def display_grid(chamber: dict[CoordinateType, str]):
         print("|")
 
 
+<<<<<<< Updated upstream
 def get_roof(
     chamber: dict[CoordinateType, str]
 ) -> tuple[int, int, int, int, int, int, int]:
@@ -121,13 +131,22 @@ def get_roof(
     )
     max_y = max(heights)
     return tuple(y - max_y for y in heights)
+=======
+def get_roof(chamber: dict[CoordinateType, str]) -> str:
+    max_y = max(y for _, y in chamber)
+    roof = []
+    # 100 is acting on faith that there's no way a piece can drop more than 100
+    # on a single turn
+    for y in range(max_y, max(-1, max_y - CEILING_HEIGHT), -1):
+        level = ''.join('#' if (x, y) in chamber else "." for x in range(WIDTH))
+        roof.append(level)
+    return '\n'.join(roof)
+>>>>>>> Stashed changes
 
 
 def part_one(puzzle: str, turns=2022) -> int:
     instructions = parse_input(puzzle=puzzle)
     chamber = {(x, 0): "-" for x in range(WIDTH)}
-    last_chamber = {**chamber}
-    floor = 0
     pieces = cycle(ROCK_SHAPES)
     roofs: dict[str, RoofType] = {shape: {} for shape in ROCK_SHAPES}
     repeat_interval = len(ROCK_SHAPES) * len(puzzle)
@@ -136,16 +155,9 @@ def part_one(puzzle: str, turns=2022) -> int:
     turn = 0
     print("repeat interval", repeat_interval)
     while turn < turns:
-        try:
-            next_piece = next(pieces)
-            place_new_piece(chamber, next_piece, instructions=instructions)
-            last_chamber = {**chamber}
-        except AssertionError:
-            print("oh no", turn, next_piece)
-            display_grid(chamber=chamber)
-            print("===before===")
-            display_grid(chamber=last_chamber)
-            raise
+        next_piece = next(pieces)
+        place_new_piece(chamber, next_piece, instructions=instructions)
+
         if turn <= 5 and turns == 2022:
             display_grid(chamber)
             print(next_piece, "===NEW PIECE===", turn)
@@ -183,6 +195,9 @@ def main():
     assert part_one_result == 3068, part_one_result
     puzzle = Path("day17.txt").read_text().strip()
     print(part_one(puzzle))
+    part_two_result = part_one(TEST_INPUT, 1000000000000)
+    assert part_two_result == 1514285714288, part_two_result
+
     print(part_one(puzzle, 1000000000000))
 
 
