@@ -149,6 +149,8 @@ def part_two(puzzle: list[str], part_one_score: int) -> int:
     grid, end, start = parse_input(puzzle)
     width = len(puzzle[0])
     height = len(puzzle)
+    for _ in range(part_one_score):
+        grid, _ = make_move(grid, end, width, height)[0]
     queue = [(part_one_score, start, grid)]
     heapq.heapify(queue)
     iterations = 0
